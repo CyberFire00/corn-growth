@@ -1,0 +1,62 @@
+#include <Servo.h>
+
+Servo miServo;
+
+//Definir pines
+const int pin_motor=6;
+const int pin_sensor_hum=A5;
+const int pin_servo=A3;
+const int pin_sensor_temp=A1;
+
+//Definir variables
+int umbral_hum=70;
+int umbral_temp=30;
+int temp_actual=0;
+int hum_actual=0;
+
+void setup(){
+  pinMode(pin_sensor_hum, INPUT);
+  pinMode(pin_motor, OUTPUT);
+  pinMode(pin_sensor_temp, INPUT);
+  miServo.attach(pin_servo);
+  
+  Serial.begin(9600);
+  Serial.println("INICIANDO");
+}
+
+void loop(){
+  leer_temp();
+  leer_hum();
+  delay(2000);
+}
+//Función temperatura
+void leer_temp(){
+  temp_actual=analogRead(pin_sensor_temp);
+  temp_actual=map(temp_actual,0,1023,-50,450);
+  Serial.print("Temperatura: ");
+  Serial.print(temp_actual);
+  Serial.print(" C\n");
+
+  if (temp_actual>umbral_temp)
+  {
+    Serial.print("Motor encendido");
+    digitalWrite(pin_motor, HIGH);
+  }
+  else{
+    Serial.print("Motor apagado");
+    digitalWrite(pin_motor, LOW);
+  }
+}
+//Función humedad
+void leer_hum(){
+  hum_actual=analogRead(pin_sensor_hum);
+  hum_actual=map(hum_actual,0,876,0,100);
+  Serial.print("Humedad: ");
+  Serial.print(hum_actual);
+  Serial.print(" %\n");
+  
+if (hum_actual<umbral_hum){
+  miServo.write(90);}
+  else{
+    miServo.write(0);}
+}
